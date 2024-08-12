@@ -30,8 +30,8 @@ def match_pattern(input_line: str, pattern: str) -> bool:
             return False
     elif pattern[0] == "[" and pattern[-1] == "]":
         if pattern[1] == "^":
-            return not match_pattern(input_line, pattern[2:-1])
-        return match_pattern(input_line, pattern[1:-1])
+            return not any(match_pattern(input_line, p) for p in pattern[2:-1])
+        return any(match_pattern(input_line, p) for p in pattern[1:-1])
     else:
         return match_pattern(input_line[1:], pattern)
 
