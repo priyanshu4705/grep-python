@@ -11,26 +11,25 @@ def match_pattern(input_line: str, pattern: str) -> bool:
         return any(char.isdigit() for char in input_line)
     elif pattern == "\\w":
         return any(char.isalnum() for char in input_line)
+    elif pattern[0] == "[" and pattern[-1] == "]":
+        return any(char in pattern[1:-1] for char in input_line)
     else:
         raise RuntimeError(f"Unhandled pattern: {pattern}")
 
 
 def main():
     pattern = sys.argv[2]
-    input_line = sys.stdin.read()
-    # input_line = input().strip()
+    input_line = sys.stdin.read().strip()
 
     if sys.argv[1] != "-E":
         print("Expected first argument to be '-E'")
         exit(1)
 
-    # You can use print statements as follows for debugging, they'll be visible when running tests.
-    print("Logs from your program will appear here!")
-
-    # Uncomment this block to pass the first stage
     if match_pattern(input_line, pattern):
+        print("PASSED")
         exit(0)
     else:
+        print("FAILED")
         exit(1)
 
 
