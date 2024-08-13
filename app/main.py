@@ -8,6 +8,7 @@ class Pattern:
     MATCH_EXACT_END = "$"
     REPEAT = "+"
     OPTIONAL = "?"
+    WILDCARD = "."
 
 
 def match_pattern(input_line: str, pattern: str) -> bool:
@@ -17,6 +18,9 @@ def match_pattern(input_line: str, pattern: str) -> bool:
         return True
     if not input_line:
         return False
+
+    if pattern[0] == Pattern.WILDCARD:
+        return match_pattern(input_line[1:], pattern[1:])
 
     if pattern[0] == "^":
         pattern = pattern[1:]
