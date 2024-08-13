@@ -11,40 +11,79 @@ class Pattern:
 
 
 def match_pattern(input_line: str, pattern: str) -> bool:
+    if len(input_line) == 0 and len(pattern) == 0:
+        return True
     if not pattern:
         return True
+    if not input_line:
+        return False
 
-    if pattern[0] == Pattern.MATCH_EXACT_START:
-        return input_line.startswith(pattern[1:])
+    if pattern[0] == "^":
+        pattern = pattern[1:]
+        while len(pattern) > 0 and len(input_line) > 0:
+            if pattern[0] == input_line[0]:
+                pattern = pattern[1:]
+                input_line = input_line[1:]
+            else:
+                return False
+        return match_pattern(input_line, pattern)
 
     if pattern[-1] == Pattern.MATCH_EXACT_END:
-        return input_line.endswith(pattern[:-1])
+        pattern = pattern[:-1]
+        while len(pattern) > 0 and len(input_line) > 0:
+            if pattern[-1] == input_line[-1]:
+                pattern = pattern[:-1]
+                input_line = input_line[:-1]
+            else:
+                return False
+        return match_pattern(input_line, pattern)
 
-    if len(pattern) > 1 and pattern[1] == Pattern.REPEAT:
-        curr = input_line[0]
-        i = 0
-        while i < len(input_line) and input_line[i] == curr:
-            i += 1
-        return match_pattern(input_line[i:], pattern[2:])
+    if pattern[0] == input_line[0]:
+        if len(pattern) > 1:
+            if pattern[1] == Pattern.REPEAT:
+                return match_pattern(input_line[1:], pattern[2:]) or match_pattern(
+                    input_line[1:], pattern
+                )
+            elif pattern[1] == Pattern.OPTIONAL:
+                return match_pattern(input_line[1:], pattern[2:]) or match_pattern(
+                    input_line, pattern[1:]
+                )
+        return match_pattern(input_line[1:], pattern[1:])
 
-    if len(pattern) > 1 and pattern[1] == Pattern.OPTIONAL:
-        return (input_line and input_line[0] == pattern[0] and match_pattern(input_line[1:], pattern[2:])) or match_pattern(input_line, pattern[2:])
+    elif pattern[0] != input_line[0] and len(pattern) > 1 and pattern[1] == Pattern.OPTIONAL:
+        if pattern[1] == Pattern.OPTIONAL:
+            return match_pattern(input_line, pattern[2:])
+        return False
 
-    if pattern[:2] == Pattern.DIGIT and input_line and input_line[0].isdigit():
-        return match_pattern(input_line[1:], pattern[2:])
+    elif pattern[:2] == Pattern.DIGIT:
+        for i in range(len(input_line)):
+            if input_line[i].isdigit():
+                return match_pattern(input_line[i:], pattern[2:])
+        else:
+            return False
 
-    if pattern[:2] == Pattern.ALNUM and input_line and input_line[0].isalnum():
-        return match_pattern(input_line[1:], pattern[2:])
+    elif pattern[:2] == Pattern.ALNUM:
+        if input_line[0].isalnum():
+            return match_pattern(input_line[1:], pattern[2:])
+        else:
+            return False
 
-    if pattern[0] == "[" and pattern[-1] == "]":
-        negation = pattern[1] == "^"
-        chars_to_match = pattern[2:-1] if negation else pattern[1:-1]
-        if negation:
-            return not any(match_pattern(input_line, char) for char in chars_to_match)
-        return any(match_pattern(input_line, char) for char in chars_to_match)
+    elif pattern[0] == "[" and pattern[-1] == "]":
+        if pattern[1] == Pattern.MATCH_EXACT_START:
+            chrs = list(pattern[2:-1])
+            for c in chrs:
+                if c in input_line:
+                    return False
+            return True
 
-    return input_line and pattern[0] == input_line[0] and match_pattern(input_line[1:], pattern[1:])
+        chrs = list(pattern[1:-1])
+        for c in chrs:
+            if c in input_line:
+                return True
+        return False
 
+    else:
+        return match_pattern(input_line[1:], pattern)
 
 def main():
     if len(sys.argv) != 3 or sys.argv[1] != "-E":
