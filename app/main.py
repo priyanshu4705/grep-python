@@ -4,7 +4,8 @@ import sys
 class Pattern:
     ALNUM = "\\w"
     DIGIT = "\\d"
-    MATCH_EXACT = "^"
+    MATCH_EXACT_START = "^"
+    MATCH_EXACT_END = "$"
 
 
 def match_pattern(input_line: str, pattern: str) -> bool:
@@ -15,8 +16,11 @@ def match_pattern(input_line: str, pattern: str) -> bool:
     if not input_line:
         return False
 
-    if pattern[0] == Pattern.MATCH_EXACT:
+    if pattern[0] == Pattern.MATCH_EXACT_START:
         return match_pattern(input_line, pattern[1:])
+    elif pattern[-1] == Pattern.MATCH_EXACT_END:
+        l = len(pattern[:-1])
+        return match_pattern(input_line[-l:], pattern[:-1])
     elif pattern[0] == input_line[0]:
         return match_pattern(input_line[1:], pattern[1:])
     elif pattern[:2] == Pattern.DIGIT:
