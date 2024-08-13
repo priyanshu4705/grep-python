@@ -7,6 +7,7 @@ class Pattern:
     MATCH_EXACT_START = "^"
     MATCH_EXACT_END = "$"
     REPEAT = "+"
+    OPTIONAL = "?"
 
 
 def match_pattern(input_line: str, pattern: str) -> bool:
@@ -25,6 +26,9 @@ def match_pattern(input_line: str, pattern: str) -> bool:
         while i < len(input_line) and input_line[i] == curr:
             i += 1
         return match_pattern(input_line[i:], pattern[2:])
+
+    if pattern[-1] == Pattern.OPTIONAL:
+        return match_pattern(input_line, pattern[:-1]) or match_pattern(input_line, pattern[:-2])
 
     if pattern[:2] == Pattern.DIGIT and input_line and input_line[0].isdigit():
         return match_pattern(input_line[1:], pattern[2:])
