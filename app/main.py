@@ -9,6 +9,7 @@ class Pattern:
     REPEAT = "+"
     OPTIONAL = "?"
     WILDCARD = "."
+    COMBINE_PATTERN = "|"
 
 
 def match_pattern(input_line: str, pattern: str) -> bool:
@@ -86,6 +87,9 @@ def match_pattern(input_line: str, pattern: str) -> bool:
                 return True
         return False
 
+    elif pattern[0] == "(" and pattern[-1] == ")":
+        patterns = pattern[1:-1].split(Pattern.COMBINE_PATTERN)
+        return any(match_pattern(input_line, pat) for pat in patterns)
     else:
         return match_pattern(input_line[1:], pattern)
 
