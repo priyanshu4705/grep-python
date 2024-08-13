@@ -27,8 +27,8 @@ def match_pattern(input_line: str, pattern: str) -> bool:
             i += 1
         return match_pattern(input_line[i:], pattern[2:])
 
-    if pattern[-1] == Pattern.OPTIONAL:
-        return match_pattern(input_line, pattern[:-1]) or match_pattern(input_line, pattern[:-2])
+    if len(pattern) > 1 and pattern[1] == Pattern.OPTIONAL:
+        return (input_line and input_line[0] == pattern[0] and match_pattern(input_line[1:], pattern[2:])) or match_pattern(input_line, pattern[2:])
 
     if pattern[:2] == Pattern.DIGIT and input_line and input_line[0].isdigit():
         return match_pattern(input_line[1:], pattern[2:])
