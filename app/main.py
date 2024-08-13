@@ -4,23 +4,25 @@ import sys
 class Pattern:
     ALNUM = "\\w"
     DIGIT = "\\d"
+    MATCH_EXACT = "^"
 
 
 def match_pattern(input_line: str, pattern: str) -> bool:
-
     if len(input_line) == 0 and len(pattern) == 0:
         return True
     if not pattern:
         return True
     if not input_line:
         return False
-    
-    if pattern[0] == input_line[0]:
+
+    if pattern[0] == Pattern.MATCH_EXACT:
+        return match_pattern(input_line, pattern[1:])
+    elif pattern[0] == input_line[0]:
         return match_pattern(input_line[1:], pattern[1:])
     elif pattern[:2] == Pattern.DIGIT:
         for i in range(len(input_line)):
             if input_line[i].isdigit():
-                return match_pattern(input_line[i+1:], pattern[2:])
+                return match_pattern(input_line[i + 1:], pattern[2:])
         else:
             return False
     elif pattern[:2] == Pattern.ALNUM:
@@ -33,7 +35,7 @@ def match_pattern(input_line: str, pattern: str) -> bool:
             return not any(match_pattern(input_line, p) for p in pattern[2:-1])
         return any(match_pattern(input_line, p) for p in pattern[1:-1])
     else:
-        return match_pattern(input_line[1:], pattern)
+        return False
 
 
 def main():
